@@ -1,11 +1,24 @@
+import argparse
 from collections import defaultdict
+
+parser = argparse.ArgumentParser(description='Rank some wordle guesses.')
+parser.add_argument('--exclude', default='',
+                    help='optional list of letters to exclude')
+
+args = parser.parse_args()
+greyed = args.exclude
 
 # load answers
 answers = []
 with open('answers.txt') as f:
     for line in f:
         word = line.strip()
-        answers.append(word)
+        skip = False
+        for letter in word:
+            if letter in greyed:
+                skip = True
+        if not skip:
+            answers.append(word)
 
 # load candidate words
 candidates = []
@@ -42,10 +55,10 @@ for word in candidates:
     lpl_scored_candidates[word] = lpl_score
 
 
-# display top 50
+# display top 20
 print("LPL-scored")
-for idx, word in enumerate(sorted(lpl_scored_candidates, key=lpl_scored_candidates.get, reverse=True)[0:50]):
+for idx, word in enumerate(sorted(lpl_scored_candidates, key=lpl_scored_candidates.get, reverse=True)[0:20]):
     print(idx+1, word, lpl_scored_candidates[word])
 print("LP-scored")
-for idx, word in enumerate(sorted(lp_scored_candidates, key=lp_scored_candidates.get, reverse=True)[0:50]):
+for idx, word in enumerate(sorted(lp_scored_candidates, key=lp_scored_candidates.get, reverse=True)[0:20]):
     print(idx+1, word, lp_scored_candidates[word])
